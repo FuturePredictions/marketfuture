@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>MarketFuture</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -13,7 +13,7 @@
             background-attachment: fixed;
             color: #e0e0e0;
             min-height: 100vh;
-            padding-bottom: 80px;
+            padding-bottom: 90px;
             overflow-x: hidden;
         }
 
@@ -101,13 +101,6 @@
             align-items: center;
             gap: 4px;
         }
-        .accuracy::before {
-            content: '';
-            width: 7px; height: 7px;
-            background: #ef4444;
-            border-radius: 50%;
-            display: inline-block;
-        }
         .subscribers {
             font-size: 12px;
             color: #777;
@@ -153,6 +146,14 @@
         .btn-own {
             background: rgba(255,255,255,0.08);
             color: #777;
+        }
+        .btn-vote-yes {
+            background: linear-gradient(135deg, #059669, #047857);
+            flex: 1;
+        }
+        .btn-vote-no {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            flex: 1;
         }
 
         .empty {
@@ -292,35 +293,35 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: rgba(0,0,0,0.45);
-            backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255,255,255,0.05);
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255,255,255,0.06);
             display: flex;
             justify-content: space-around;
             align-items: center;
-            padding: 5px 8px 12px;
+            padding: 10px 12px 18px;
             z-index: 1000;
         }
         .nav-btn {
             background: none;
             border: none;
             color: #666;
-            font-size: 12px;
-            font-weight: 500;
+            font-size: 14px;
+            font-weight: 600;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
-            padding: 8px 14px;
-            border-radius: 18px;
+            gap: 4px;
+            padding: 12px 20px;
+            border-radius: 24px;
             transition: all 0.2s;
             font-family: inherit;
-            min-width: 60px;
+            min-width: 72px;
         }
         .nav-btn.active {
             color: #4facfe;
-            background: rgba(79,172,254,0.1);
+            background: rgba(79,172,254,0.12);
         }
         .nav-btn:active { transform: scale(0.92); }
 
@@ -486,36 +487,105 @@
         .modal-btn.cancel { background: rgba(255,255,255,0.06); color: #777; }
         .modal-btn.confirm { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
 
+        .admin-btn {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            box-shadow: 0 4px 12px rgba(239,68,68,0.25);
+            margin-bottom: 20px;
+        }
+        .admin-panel {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+        .admin-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ef4444;
+            margin-bottom: 12px;
+        }
+        .admin-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .admin-item:last-child { border-bottom: none; }
+        .admin-item-title { font-size: 14px; font-weight: 500; flex: 1; padding-right: 10px; }
+        .admin-item-meta { font-size: 11px; color: #666; margin-top: 2px; }
+        .btn-delete {
+            background: rgba(239,68,68,0.15);
+            color: #ef4444;
+            padding: 6px 14px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .btn-delete:active { background: rgba(239,68,68,0.25); }
+        .hidden-admin { display: none !important; }
         .hidden { display: none !important; }
+        .vote-row { display: flex; gap: 8px; margin-top: 10px; }
+        .vote-status {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #a5b4fc;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 10px;
+        }
+        .result-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .result-true { background: rgba(34,197,94,0.2); color: #4ade80; }
+        .result-false { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .status-badge {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-left: 6px;
+        }
+        .status-pending { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .status-resolved { background: rgba(99,102,241,0.2); color: #a5b4fc; }
         ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
 <body>
     <div class="header">
         <div class="header-title">MarketFuture</div>
-        <div class="balance"><span>💎</span> <span id="userBalance">—</span></div>
+        <div style="display:flex;align-items:center;gap:8px">
+            <button class="btn" style="background:rgba(255,255,255,0.08);padding:5px 12px;border-radius:12px;font-size:13px" onclick="toggleLanguage()" id="langBtn">EN</button>
+            <div class="balance"><span>💎</span> <span id="userBalance">—</span></div>
+        </div>
     </div>
 
     <div class="toast-container" id="toastContainer"></div>
 
     <div id="page-feed" class="page container">
-        <div id="feedList"><div class="empty">Загрузка...</div></div>
+        <div id="feedList"><div class="empty" data-i18n="loading">Загрузка...</div></div>
     </div>
 
     <div id="page-create" class="page container hidden">
-        <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Новый прогноз</div>
-        <div style="color: #666; font-size: 13px; margin-bottom: 18px;">Создай прогноз и зарабатывай кристаллы</div>
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" data-i18n="newPrediction">Новый прогноз</div>
+        <div style="color: #666; font-size: 13px; margin-bottom: 18px;" data-i18n="createDesc">Создай прогноз и зарабатывай кристаллы</div>
 
         <div class="form-group">
-            <label class="form-label">Тема прогноза</label>
-            <input type="text" class="form-input" id="inpTitle" placeholder="Например: Цена биткоина в 2029">
+            <label class="form-label" data-i18n="predictionTitle">Тема прогноза</label>
+            <input type="text" class="form-input" id="inpTitle" data-i18n-placeholder="enterTitle" placeholder="Например: Цена биткоина в 2029">
         </div>
         <div class="form-group">
-            <label class="form-label">Почему ты так думаешь (скрыто до покупки)</label>
-            <textarea class="form-textarea" id="inpDesc" placeholder="Аргументация, которая откроется подписчикам после оплаты..."></textarea>
+            <label class="form-label" data-i18n="predictionDesc">Почему ты так думаешь (скрыто до покупки)</label>
+            <textarea class="form-textarea" id="inpDesc" data-i18n-placeholder="enterDesc" placeholder="Аргументация, которая откроется подписчикам после оплаты..."></textarea>
         </div>
         <div class="form-group">
-            <label class="form-label">Категория</label>
+            <label class="form-label" data-i18n="category">Категория</label>
             <select class="form-select" id="inpCategory">
                 <option value="Крипто">Крипто</option>
                 <option value="Спорт">Спорт</option>
@@ -525,14 +595,14 @@
             </select>
         </div>
         <div class="form-group">
-            <label class="form-label">Дата проверки прогноза</label>
+            <label class="form-label" data-i18n="checkDate">Дата проверки прогноза</label>
             <input type="date" class="form-input" id="inpDate">
         </div>
         <div class="form-group">
-            <label class="form-label">Цена в кристаллах</label>
-            <input type="number" class="form-input" id="inpPrice" placeholder="Например: 50" min="1">
+            <label class="form-label" data-i18n="price">Цена в кристаллах</label>
+            <input type="number" class="form-input" id="inpPrice" data-i18n-placeholder="enterPrice" placeholder="Например: 50" min="1">
         </div>
-        <button class="btn btn-submit" onclick="publishPrediction()">Опубликовать прогноз</button>
+        <button class="btn btn-submit" onclick="publishPrediction()" data-i18n="publish">Опубликовать прогноз</button>
     </div>
 
     <div id="page-profile" class="page container hidden">
@@ -544,67 +614,69 @@
             <div class="stats">
                 <div class="stat">
                     <div class="stat-value blue" id="statAccuracy">—</div>
-                    <div class="stat-label">Точность</div>
+                    <div class="stat-label" data-i18n="accuracy">Точность</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value purple" id="statStars">—</div>
-                    <div class="stat-label">Кристаллы</div>
+                    <div class="stat-label" data-i18n="crystals">Кристаллы</div>
                 </div>
                 <div class="stat">
                     <div class="stat-value green" id="statPredictions">—</div>
-                    <div class="stat-label">Прогнозов</div>
+                    <div class="stat-label" data-i18n="predictionsCount">Прогнозов</div>
                 </div>
             </div>
 
-            <button class="btn btn-change-nick" onclick="openNickModal()">Изменить ник</button>
+            <button class="btn btn-change-nick" onclick="openNickModal()" data-i18n="changeNick">Изменить ник</button>
         </div>
+
+        <button id="adminBtn" class="btn admin-btn hidden-admin" onclick="openAdminPanel()" data-i18n="adminPanel">Админ панель</button>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="switchProfileTab('mine', this)">Мои прогнозы</button>
-            <button class="tab-btn" onclick="switchProfileTab('bought', this)">Купленные</button>
+            <button class="tab-btn active" onclick="switchProfileTab('mine', this)" data-i18n="myPredictions">Мои прогнозы</button>
+            <button class="tab-btn" onclick="switchProfileTab('bought', this)" data-i18n="bought">Купленные</button>
         </div>
 
-        <div id="profileContent"><div class="empty">Загрузка...</div></div>
+        <div id="profileContent"><div class="empty" data-i18n="loading">Загрузка...</div></div>
     </div>
 
     <div id="page-faq" class="page container hidden">
-        <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Как это работает</div>
-        <div style="color: #666; font-size: 13px; margin-bottom: 18px;">Правила и ответы на вопросы</div>
+        <div style="font-size: 18px; font-weight: 700; margin-bottom: 4px;" data-i18n="howItWorks">Как это работает</div>
+        <div style="color: #666; font-size: 13px; margin-bottom: 18px;" data-i18n="faqDesc">Правила и ответы на вопросы</div>
 
         <div class="faq-item">
-            <div class="faq-q">Что такое MarketFuture?</div>
-            <div class="faq-a">Биржа прогнозов внутри Telegram. Авторы публикуют прогнозы на реальные события, подписчики покупают доступ за кристаллы.</div>
+            <div class="faq-q" data-i18n="faq1q">Что такое MarketFuture?</div>
+            <div class="faq-a" data-i18n="faq1a">Биржа прогнозов внутри Telegram. Авторы публикуют прогнозы на реальные события, подписчики покупают доступ за кристаллы.</div>
         </div>
         <div class="faq-item">
-            <div class="faq-q">Как заработать кристаллы?</div>
-            <div class="faq-a">Создавай точные прогнозы. После даты проверки подписчики голосуют «Сбылось / Не сбылось». Если сбылось — рейтинг растет.</div>
+            <div class="faq-q" data-i18n="faq2q">Как заработать кристаллы?</div>
+            <div class="faq-a" data-i18n="faq2a">Создавай точные прогнозы. После даты проверки подписчики голосуют. Если сбылось — рейтинг растет.</div>
         </div>
         <div class="faq-item">
-            <div class="faq-q">Почему описание скрыто?</div>
-            <div class="faq-a">Аргументация автора — главная ценность. Она открывается только после покупки. Заголовок и категория видны всем.</div>
+            <div class="faq-q" data-i18n="faq3q">Почему описание скрыто?</div>
+            <div class="faq-a" data-i18n="faq3a">Аргументация автора — главная ценность. Она открывается только после покупки.</div>
         </div>
         <div class="faq-item">
-            <div class="faq-q">Можно ли купить один прогноз дважды?</div>
-            <div class="faq-a">Нет. Каждый прогноз покупается один раз. После покупки кнопка меняется на «Открыть».</div>
+            <div class="faq-q" data-i18n="faq4q">Можно ли купить один прогноз дважды?</div>
+            <div class="faq-a" data-i18n="faq4a">Нет. Каждый прогноз покупается один раз.</div>
         </div>
         <div class="faq-item">
-            <div class="faq-q">Что такое кристаллы?</div>
-            <div class="faq-a">Внутренняя валюта приложения. Используется для покупки доступа к прогнозам. Авторы зарабатывают кристаллы за точные предсказания.</div>
+            <div class="faq-q" data-i18n="faq5q">Что такое кристаллы?</div>
+            <div class="faq-a" data-i18n="faq5a">Внутренняя валюта. При регистрации дается 1000. Авторы зарабатывают за точные предсказания.</div>
         </div>
     </div>
 
     <div class="bottom-nav">
         <button class="nav-btn active" onclick="navigate('feed')">
-            <span>Лента</span>
+            <span data-i18n="feed">Лента</span>
         </button>
         <button class="nav-btn" onclick="navigate('create')">
-            <span>Создать</span>
+            <span data-i18n="create">Создать</span>
         </button>
         <button class="nav-btn" onclick="navigate('profile')">
-            <span>Профиль</span>
+            <span data-i18n="profile">Профиль</span>
         </button>
         <button class="nav-btn" onclick="navigate('faq')">
-            <span>FAQ</span>
+            <span data-i18n="faq">FAQ</span>
         </button>
     </div>
 
@@ -616,13 +688,13 @@
             </div>
             <div class="pred-modal-badge" id="predModalBadge"></div>
             <div class="pred-modal-body">
-                <div class="pred-modal-label">Аргументация автора</div>
+                <div class="pred-modal-label" data-i18n="authorArg">Аргументация автора</div>
                 <div class="pred-modal-value" id="predModalDesc"></div>
-                <div class="pred-modal-label">Точность автора</div>
+                <div class="pred-modal-label" data-i18n="authorAccuracy">Точность автора</div>
                 <div class="pred-modal-value" id="predModalAccuracy"></div>
-                <div class="pred-modal-label">Подписчиков</div>
+                <div class="pred-modal-label" data-i18n="subscribersLabel">Подписчиков</div>
                 <div class="pred-modal-value" id="predModalSubs"></div>
-                <div class="pred-modal-label">Цена</div>
+                <div class="pred-modal-label" data-i18n="priceLabel">Цена</div>
                 <div class="pred-modal-value" id="predModalPrice"></div>
             </div>
         </div>
@@ -630,12 +702,23 @@
 
     <div class="modal-overlay" id="nickModal">
         <div class="modal">
-            <div class="modal-title">Введи новый ник:</div>
+            <div class="modal-title" data-i18n="enterNick">Введи новый ник:</div>
             <input type="text" class="modal-input" id="newNickInput" maxlength="20">
             <div class="modal-buttons">
-                <button class="modal-btn cancel" onclick="closeNickModal()">Отмена</button>
-                <button class="modal-btn confirm" onclick="saveNick()">Подтвердить</button>
+                <button class="modal-btn cancel" onclick="closeNickModal()" data-i18n="cancel">Отмена</button>
+                <button class="modal-btn confirm" onclick="saveNick()" data-i18n="confirm">Подтвердить</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div class="pred-modal-overlay" id="adminModal">
+        <div class="pred-modal">
+            <div class="pred-modal-header">
+                <div class="pred-modal-title" data-i18n="adminPanel">Админ панель</div>
+                <button class="pred-modal-close" onclick="closeAdminModal()">&times;</button>
+            </div>
+            <div id="adminContent"><div class="empty" data-i18n="loading">Загрузка...</div></div>
         </div>
     </div>
 
@@ -660,6 +743,41 @@
             } catch(e) {}
         }
 
+        function playSuccess() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(440, ctx.currentTime);
+                osc.frequency.setValueAtTime(554, ctx.currentTime + 0.1);
+                osc.frequency.setValueAtTime(659, ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.35);
+            } catch(e) {}
+        }
+
+        function playError() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(200, ctx.currentTime);
+                osc.frequency.setValueAtTime(150, ctx.currentTime + 0.15);
+                gain.gain.setValueAtTime(0.08, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.3);
+                osc.start();
+                osc.stop(ctx.currentTime + 0.3);
+            } catch(e) {}
+        }
+
         let predictions = [];
         let profileData = null;
         let currentProfileTab = 'mine';
@@ -667,13 +785,133 @@
         let tgUserId = '0';
         let tgUserName = 'User';
         let tgUserHandle = '@user';
+        let currentLang = localStorage.getItem('mf_lang') || 'ru';
+
+        const translations = {
+            ru: {
+                feed: 'Лента', create: 'Создать', profile: 'Профиль', faq: 'FAQ',
+                myPredictions: 'Мои прогнозы', bought: 'Купленные',
+                newPrediction: 'Новый прогноз', createDesc: 'Создай прогноз и зарабатывай кристаллы',
+                howItWorks: 'Как это работает', faqDesc: 'Правила и ответы на вопросы',
+                predictionTitle: 'Тема прогноза',
+                predictionDesc: 'Почему ты так думаешь (скрыто до покупки)',
+                category: 'Категория', checkDate: 'Дата проверки прогноза',
+                price: 'Цена в кристаллах', publish: 'Опубликовать прогноз',
+                accuracy: 'Точность', crystals: 'Кристаллы', predictionsCount: 'Прогнозов',
+                changeNick: 'Изменить ник', enterNick: 'Введи новый ник:',
+                cancel: 'Отмена', confirm: 'Подтвердить',
+                buyAccess: 'Купить доступ', open: 'Открыть', yourPrediction: 'Твой прогноз',
+                lockedDesc: 'Описание откроется после покупки',
+                authorArg: 'Аргументация автора', authorAccuracy: 'Точность автора',
+                subscribersLabel: 'Подписчиков', priceLabel: 'Цена',
+                adminPanel: 'Админ панель', delete: 'Удалить',
+                faq1q: 'Что такое MarketFuture?', faq2q: 'Как заработать кристаллы?',
+                faq3q: 'Почему описание скрыто?', faq4q: 'Можно ли купить один прогноз дважды?',
+                faq5q: 'Что такое кристаллы?',
+                faq1a: 'Биржа прогнозов внутри Telegram. Авторы публикуют прогнозы на реальные события, подписчики покупают доступ за кристаллы.',
+                faq2a: 'Создавай точные прогнозы. После даты проверки подписчики голосуют. Если сбылось — рейтинг растет.',
+                faq3a: 'Аргументация автора — главная ценность. Она открывается только после покупки.',
+                faq4a: 'Нет. Каждый прогноз покупается один раз.',
+                faq5a: 'Внутренняя валюта. При регистрации дается 1000. Авторы зарабатывают за точные предсказания.',
+                vote: 'Голосовать', happened: 'Сбылось', notHappened: 'Не сбылось',
+                voted: 'Вы проголосовали', pending: 'Ожидает', resolved: 'Завершен',
+                emptyFeed: 'Пока нет прогнозов. Создай первый!',
+                emptyMine: 'Нет прогнозов', emptyBought: 'Нет купленных прогнозов',
+                loading: 'Загрузка...',
+                fillAll: 'Заполните все поля', published: 'Прогноз опубликован',
+                nickChanged: 'Ник изменен!', error: 'Ошибка',
+                boughtCrystals: 'Куплено за', insufficient: 'Недостаточно кристаллов',
+                buyError: 'Ошибка покупки', pubError: 'Ошибка публикации',
+                deleteConfirm: 'Удалить прогноз',
+                voteSuccess: 'Голос учтен', voteError: 'Ошибка голосования',
+                votePrompt: 'Что произошло с прогнозом?',
+                enterTitle: 'Например: Цена биткоина в 2029',
+                enterDesc: 'Аргументация, которая откроется подписчикам после оплаты...',
+                enterPrice: 'Например: 50',
+                resultTrue: 'Сбылось!', resultFalse: 'Не сбылось',
+                statusPending: 'Ожидает проверки', statusResolved: 'Проверен',
+                yourVote: 'Ваш голос', waitingVotes: 'Ожидание голосов'
+            },
+            en: {
+                feed: 'Feed', create: 'Create', profile: 'Profile', faq: 'FAQ',
+                myPredictions: 'My Predictions', bought: 'Purchased',
+                newPrediction: 'New Prediction', createDesc: 'Create a prediction and earn crystals',
+                howItWorks: 'How it works', faqDesc: 'Rules and answers',
+                predictionTitle: 'Prediction title',
+                predictionDesc: 'Why do you think so (hidden until purchase)',
+                category: 'Category', checkDate: 'Check date',
+                price: 'Price in crystals', publish: 'Publish prediction',
+                accuracy: 'Accuracy', crystals: 'Crystals', predictionsCount: 'Predictions',
+                changeNick: 'Change nickname', enterNick: 'Enter new nickname:',
+                cancel: 'Cancel', confirm: 'Confirm',
+                buyAccess: 'Buy access', open: 'Open', yourPrediction: 'Your prediction',
+                lockedDesc: 'Description will open after purchase',
+                authorArg: "Author's argument", authorAccuracy: "Author's accuracy",
+                subscribersLabel: 'Subscribers', priceLabel: 'Price',
+                adminPanel: 'Admin Panel', delete: 'Delete',
+                faq1q: 'What is MarketFuture?', faq2q: 'How to earn crystals?',
+                faq3q: 'Why is the description hidden?', faq4q: 'Can I buy a prediction twice?',
+                faq5q: 'What are crystals?',
+                faq1a: 'Prediction exchange inside Telegram. Authors publish forecasts, subscribers buy access with crystals.',
+                faq2a: 'Create accurate predictions. After check date subscribers vote. If it came true — rating grows.',
+                faq3a: "Author's argument is the main value. It opens only after purchase.",
+                faq4a: 'No. Each prediction can be bought once.',
+                faq5a: 'Internal currency. You get 1000 on signup. Authors earn for accurate predictions.',
+                vote: 'Vote', happened: 'Happened', notHappened: 'Did not happen',
+                voted: 'You voted', pending: 'Pending', resolved: 'Resolved',
+                emptyFeed: 'No predictions yet. Create the first one!',
+                emptyMine: 'No predictions', emptyBought: 'No purchased predictions',
+                loading: 'Loading...',
+                fillAll: 'Fill in all fields', published: 'Prediction published',
+                nickChanged: 'Nickname changed!', error: 'Error',
+                boughtCrystals: 'Bought for', insufficient: 'Not enough crystals',
+                buyError: 'Purchase error', pubError: 'Publication error',
+                deleteConfirm: 'Delete prediction',
+                voteSuccess: 'Vote counted', voteError: 'Voting error',
+                votePrompt: 'What happened with the prediction?',
+                enterTitle: 'e.g. Bitcoin price in 2029',
+                enterDesc: 'Argumentation that will open to subscribers after payment...',
+                enterPrice: 'e.g. 50',
+                resultTrue: 'Came true!', resultFalse: 'Did not come true',
+                statusPending: 'Pending check', statusResolved: 'Checked',
+                yourVote: 'Your vote', waitingVotes: 'Waiting for votes'
+            }
+        };
+
+        function t(key) {
+            return translations[currentLang][key] || translations['ru'][key] || key;
+        }
+
+        function applyLanguage() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[currentLang][key]) {
+                    el.placeholder = translations[currentLang][key];
+                }
+            });
+            document.getElementById('langBtn').textContent = currentLang === 'ru' ? 'EN' : 'RU';
+        }
+
+        function toggleLanguage() {
+            currentLang = currentLang === 'ru' ? 'en' : 'ru';
+            localStorage.setItem('mf_lang', currentLang);
+            applyLanguage();
+            const activePage = document.querySelector('.page:not(.hidden)');
+            if (activePage.id === 'page-feed') renderFeed();
+            if (activePage.id === 'page-profile') renderProfileContent();
+        }
 
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             Telegram.WebApp.setHeaderColor('#0f0c29');
             Telegram.WebApp.setBackgroundColor('#0f0c29');
-
             const user = Telegram.WebApp.initDataUnsafe.user;
             if (user) {
                 tgUserId = String(user.id);
@@ -682,17 +920,13 @@
             }
         }
 
-        // Если не в Telegram (тест в браузере), показываем предупреждение
-        if (tgUserId === '0') {
-            console.log('Test mode: no Telegram user detected');
-        }
+        let isAdmin = false;
 
         function navigate(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
             document.getElementById('page-' + page).classList.remove('hidden');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             event.currentTarget.classList.add('active');
-
             if (page === 'feed') loadFeed();
             if (page === 'profile') loadProfile();
         }
@@ -707,64 +941,58 @@
         }
 
         async function api(path, opts) {
-            // GET запросы: telegram_id в URL
-            // POST запросы: telegram_id в body
             let url = API_URL + path;
-            let newOpts = { ...opts };
-
+            let newOpts = { headers: { 'Content-Type': 'application/json' }, ...opts };
             if (!opts || opts.method === 'GET' || !opts.method) {
-                // Для GET добавляем query параметр
-                url += (url.includes('?') ? '&' : '?') + 'telegram_id=' + encodeURIComponent(tgUserId);
+                url += (url.includes('?') ? '&' : '?') + 'telegram_id=' + encodeURIComponent(tgUserId) + '&name=' + encodeURIComponent(tgUserName) + '&handle=' + encodeURIComponent(tgUserHandle);
             } else {
-                // Для POST добавляем в body
                 const body = opts.body ? JSON.parse(opts.body) : {};
                 body.telegram_id = tgUserId;
                 newOpts.body = JSON.stringify(body);
             }
-
-            const res = await fetch(url, { 
-                headers: { 'Content-Type': 'application/json' }, 
-                ...newOpts 
-            });
+            const res = await fetch(url, newOpts);
             if (!res.ok) throw new Error(await res.text());
             return res.json();
         }
 
         async function loadFeed() {
             const list = document.getElementById('feedList');
-            list.innerHTML = '<div class="empty">Загрузка...</div>';
+            list.innerHTML = '<div class="empty">' + t('loading') + '</div>';
             try {
                 predictions = await api('/api/predictions');
                 renderFeed();
             } catch (e) {
-                list.innerHTML = '<div class="empty">Ошибка загрузки. Проверь API_URL в коде.</div>';
+                list.innerHTML = '<div class="empty">' + t('error') + '</div>';
             }
         }
 
         function renderFeed() {
             const list = document.getElementById('feedList');
             if (predictions.length === 0) {
-                list.innerHTML = '<div class="empty">Пока нет прогнозов. Создай первый!</div>';
+                list.innerHTML = '<div class="empty">' + t('emptyFeed') + '</div>';
                 return;
             }
             list.innerHTML = '';
             predictions.forEach(p => {
                 const isBought = p.is_bought || p.is_mine;
-                const btnText = isBought ? 'Открыть' : 'Купить доступ';
+                const btnText = isBought ? t('open') : t('buyAccess');
                 const btnClass = isBought ? 'btn-open' : 'btn-buy';
+                const statusHtml = p.status === 'resolved'
+                    ? '<span class="status-badge status-resolved">' + t('statusResolved') + '</span>'
+                    : '<span class="status-badge status-pending">' + t('statusPending') + '</span>';
 
                 const card = document.createElement('div');
                 card.className = 'card';
                 card.innerHTML = `
-                    <div class="card-title">${escapeHtml(p.title)}</div>
+                    <div class="card-title">${escapeHtml(p.title)} ${statusHtml}</div>
                     <div class="card-locked">
-                        <span class="lock">🔒</span> Описание откроется после покупки
+                        <span style="font-size:16px;">🔒</span> ${t('lockedDesc')}
                     </div>
                     <div class="card-meta">
                         <div class="meta-left">
                             <span class="badge">${escapeHtml(p.category)}</span>
-                            <span class="accuracy">${p.accuracy || 0}% точность</span>
-                            <span class="subscribers">${p.subscribers || 0} подписчиков</span>
+                            <span class="accuracy">${p.author_accuracy || 0}% ${t('accuracy')}</span>
+                            <span class="subscribers">${p.subscribers || 0} ${t('subscribersLabel')}</span>
                         </div>
                     </div>
                     <div class="card-bottom">
@@ -779,12 +1007,11 @@
         async function handleAction(id) {
             const p = predictions.find(x => x.id === id);
             if (!p) return;
-
             if (p.is_bought || p.is_mine) {
                 openPredModal(p);
             } else {
-                if (profileData && profileData.user.balance < p.price) {
-                    showToast('Недостаточно кристаллов');
+                if (profileData && profileData.user && profileData.user.balance < p.price) {
+                    showToast(t('insufficient'));
                     return;
                 }
                 try {
@@ -792,15 +1019,16 @@
                         method: 'POST',
                         body: JSON.stringify({ prediction_id: id })
                     });
-                    profileData.user.balance = res.new_balance;
+                    if (profileData && profileData.user) profileData.user.balance = res.new_balance;
                     updateBalance();
                     p.is_bought = 1;
                     renderFeed();
                     playBuySound();
-                    showToast('Куплено за ' + p.price + ' кристаллов');
+                    showToast(t('boughtCrystals') + ' ' + p.price + ' 💎');
                     openPredModal(p);
                 } catch (e) {
-                    showToast('Ошибка покупки');
+                    playError();
+                    showToast(t('buyError'));
                 }
             }
         }
@@ -809,8 +1037,8 @@
             document.getElementById('predModalTitle').textContent = p.title;
             document.getElementById('predModalBadge').textContent = p.category;
             document.getElementById('predModalDesc').textContent = p.description;
-            document.getElementById('predModalAccuracy').textContent = (p.accuracy || 0) + '%';
-            document.getElementById('predModalSubs').textContent = (p.subscribers || 0) + ' подписчиков';
+            document.getElementById('predModalAccuracy').textContent = (p.author_accuracy || 0) + '%';
+            document.getElementById('predModalSubs').textContent = (p.subscribers || 0) + ' ' + t('subscribersLabel');
             document.getElementById('predModalPrice').innerHTML = '<span style="color:#a78bfa;font-weight:700;">💎 ' + p.price + '</span>';
             document.getElementById('predModal').classList.add('open');
             document.body.style.overflow = 'hidden';
@@ -826,7 +1054,7 @@
         });
 
         function updateBalance() {
-            if (profileData) {
+            if (profileData && profileData.user) {
                 document.getElementById('userBalance').textContent = profileData.user.balance;
                 document.getElementById('statStars').textContent = profileData.user.balance;
             }
@@ -840,7 +1068,7 @@
             const price = parseInt(document.getElementById('inpPrice').value);
 
             if (!title || !desc || !date || !price) {
-                showToast('Заполни все поля');
+                showToast(t('fillAll'));
                 return;
             }
 
@@ -853,8 +1081,9 @@
                 document.getElementById('inpDesc').value = '';
                 document.getElementById('inpDate').value = '';
                 document.getElementById('inpPrice').value = '';
-                showToast('Прогноз опубликован');
-                if (profileData) {
+                playSuccess();
+                showToast(t('published'));
+                if (profileData && profileData.user) {
                     profileData.user.predictions_count++;
                     document.getElementById('statPredictions').textContent = profileData.user.predictions_count;
                 }
@@ -864,32 +1093,40 @@
                 document.getElementById('page-feed').classList.remove('hidden');
                 loadFeed();
             } catch (e) {
-                showToast('Ошибка публикации');
+                playError();
+                showToast(t('pubError'));
             }
         }
 
         async function loadProfile() {
             const content = document.getElementById('profileContent');
-            content.innerHTML = '<div class="empty">Загрузка...</div>';
+            content.innerHTML = '<div class="empty">' + t('loading') + '</div>';
             try {
                 profileData = await api('/api/profile');
                 const u = profileData.user;
+                if (tgUserId !== '0' && tgUserName !== 'User' && u.name !== tgUserName) {
+                    await api('/api/nick', { method: 'POST', body: JSON.stringify({ name: tgUserName }) });
+                    u.name = tgUserName;
+                }
                 document.getElementById('profileName').textContent = u.name;
-                document.getElementById('profileHandle').textContent = u.handle;
+                document.getElementById('profileHandle').textContent = tgUserHandle !== '@user' ? tgUserHandle : u.handle;
                 document.getElementById('statAccuracy').textContent = (u.accuracy || 0) + '%';
                 document.getElementById('statStars').textContent = u.balance;
                 document.getElementById('statPredictions').textContent = u.predictions_count || 0;
                 document.getElementById('profileAvatar').textContent = (u.name || 'U').charAt(0).toUpperCase();
                 document.getElementById('userBalance').textContent = u.balance;
+                isAdmin = profileData.is_admin || false;
+                const adminBtn = document.getElementById('adminBtn');
+                if (adminBtn) adminBtn.classList.toggle('hidden-admin', !isAdmin);
                 renderProfileContent();
             } catch (e) {
-                content.innerHTML = '<div class="empty">Ошибка загрузки профиля</div>';
+                content.innerHTML = '<div class="empty">' + t('error') + '</div>';
             }
         }
 
         function switchProfileTab(tab, btn) {
             currentProfileTab = tab;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#page-profile .tab-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             renderProfileContent();
         }
@@ -900,9 +1137,7 @@
             const list = currentProfileTab === 'mine' ? profileData.mine : profileData.bought;
 
             if (list.length === 0) {
-                container.innerHTML = '<div class="empty">' + 
-                    (currentProfileTab === 'mine' ? 'Нет прогнозов' : 'Нет купленных прогнозов') + 
-                    '</div>';
+                container.innerHTML = '<div class="empty">' + (currentProfileTab === 'mine' ? t('emptyMine') : t('emptyBought')) + '</div>';
                 return;
             }
 
@@ -910,25 +1145,67 @@
                 const card = document.createElement('div');
                 card.className = 'card';
                 const isMine = currentProfileTab === 'mine';
+
+                let voteHtml = '';
+                let statusHtml = '';
+                if (!isMine) {
+                    if (p.can_vote && p.my_vote === null && p.status === 'pending') {
+                        voteHtml = `<div style="margin-top:8px;font-size:12px;color:#888;margin-bottom:6px;">${t('votePrompt')}</div>
+                        <div class="vote-row">
+                            <button class="btn btn-vote-yes" onclick="submitVote(${p.id},1)">${t('happened')}</button>
+                            <button class="btn btn-vote-no" onclick="submitVote(${p.id},0)">${t('notHappened')}</button>
+                        </div>`;
+                    } else if (p.my_vote !== null) {
+                        const voteText = p.my_vote === 1 ? t('happened') : t('notHappened');
+                        voteHtml = `<div class="vote-status">${t('yourVote')}: <strong>${voteText}</strong></div>`;
+                    } else if (p.status === 'resolved') {
+                        const resultText = p.result === 1 ? t('resultTrue') : t('resultFalse');
+                        const badgeClass = p.result === 1 ? 'result-true' : 'result-false';
+                        voteHtml = `<div class="vote-status">${t('resolved')}: <span class="result-badge ${badgeClass}">${resultText}</span></div>`;
+                    } else if (p.status === 'pending' && !p.can_vote) {
+                        voteHtml = `<div class="vote-status">${t('statusPending')}</div>`;
+                    }
+                }
+
+                const statusBadge = p.status === 'resolved'
+                    ? '<span class="status-badge status-resolved">' + t('statusResolved') + '</span>'
+                    : '<span class="status-badge status-pending">' + t('statusPending') + '</span>';
+
                 card.innerHTML = `
-                    <div class="card-title">${escapeHtml(p.title)}</div>
+                    <div class="card-title">${escapeHtml(p.title)} ${statusBadge}</div>
                     <div class="card-meta">
                         <div class="meta-left">
                             <span class="badge">${escapeHtml(p.category)}</span>
-                            <span class="accuracy">${p.accuracy || 0}% точность</span>
-                            <span class="subscribers">${p.subscribers || 0} подписчиков</span>
+                            <span class="subscribers">${p.subscribers || 0} ${t('subscribersLabel')}</span>
                         </div>
                     </div>
                     <div class="card-bottom">
                         <div class="price"><span>💎</span> ${p.price}</div>
-                        ${isMine 
-                            ? '<button class="btn btn-own" disabled>Твой прогноз</button>' 
-                            : '<button class="btn btn-open" onclick="openPredModal(profileData.bought.find(x=>x.id=='+p.id+'))">Открыть</button>'
+                        ${isMine
+                            ? '<button class="btn btn-own" disabled>' + t('yourPrediction') + '</button>'
+                            : '<button class="btn btn-open" onclick="openPredModal(profileData.bought.find(x=>x.id==' + p.id + '))">' + t('open') + '</button>'
                         }
                     </div>
+                    ${voteHtml}
                 `;
                 container.appendChild(card);
             });
+        }
+
+        async function submitVote(pid, val) {
+            try {
+                await api('/api/vote', {
+                    method: 'POST',
+                    body: JSON.stringify({ prediction_id: pid, vote: val })
+                });
+                playSuccess();
+                showToast(t('voteSuccess'));
+                loadProfile();
+                loadFeed();
+            } catch (e) {
+                playError();
+                showToast(t('voteError'));
+            }
         }
 
         function openNickModal() {
@@ -946,9 +1223,11 @@
                 if (profileData) profileData.user.name = val;
                 document.getElementById('profileName').textContent = val;
                 document.getElementById('profileAvatar').textContent = val.charAt(0).toUpperCase();
-                showToast('Ник изменен!');
+                playSuccess();
+                showToast(t('nickChanged'));
             } catch (e) {
-                showToast('Ошибка');
+                playError();
+                showToast(t('error'));
             }
             closeNickModal();
         }
@@ -963,6 +1242,68 @@
             return div.innerHTML;
         }
 
+        // ─── Admin Panel ───────────────────────────────────
+        async function openAdminPanel() {
+            const content = document.getElementById('adminContent');
+            content.innerHTML = '<div class="empty">' + t('loading') + '</div>';
+            document.getElementById('adminModal').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            try {
+                const data = await api('/api/admin');
+                renderAdminContent(data);
+            } catch (e) {
+                content.innerHTML = '<div class="empty">' + t('error') + '</div>';
+            }
+        }
+
+        function closeAdminModal() {
+            document.getElementById('adminModal').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('adminModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAdminModal();
+        });
+
+        function renderAdminContent(data) {
+            const container = document.getElementById('adminContent');
+            if (!data.predictions || data.predictions.length === 0) {
+                container.innerHTML = '<div class="empty">' + t('emptyFeed') + '</div>';
+                return;
+            }
+            container.innerHTML = '<div class="admin-title">' + t('adminPanel') + ' (' + data.predictions.length + ')</div>';
+            data.predictions.forEach(p => {
+                const item = document.createElement('div');
+                item.className = 'admin-item';
+                item.innerHTML = `
+                    <div style="flex:1">
+                        <div class="admin-item-title">${escapeHtml(p.title)}</div>
+                        <div class="admin-item-meta">${escapeHtml(p.author_name)} | ${p.category} | ${p.price} 💎 | ${t('subscribersLabel')}: ${p.subscribers || 0}</div>
+                    </div>
+                    <button class="btn btn-delete" onclick="deletePrediction(${p.id})">${t('delete')}</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        async function deletePrediction(id) {
+            if (!confirm(t('deleteConfirm') + ' #' + id + '?')) return;
+            try {
+                await api('/api/admin/delete', {
+                    method: 'POST',
+                    body: JSON.stringify({ prediction_id: id })
+                });
+                playSuccess();
+                showToast(t('delete') + ' ✓');
+                openAdminPanel();
+                loadFeed();
+            } catch (e) {
+                playError();
+                showToast(t('error'));
+            }
+        }
+
+        applyLanguage();
         loadFeed();
     </script>
 </body>
