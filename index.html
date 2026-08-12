@@ -707,10 +707,22 @@
         }
 
         async function api(path, opts) {
-            const body = opts && opts.body ? JSON.parse(opts.body) : {};
-            body.telegram_id = tgUserId;
-            const newOpts = { ...opts, body: JSON.stringify(body) };
-            const res = await fetch(API_URL + path, { 
+            // GET запросы: telegram_id в URL
+            // POST запросы: telegram_id в body
+            let url = API_URL + path;
+            let newOpts = { ...opts };
+
+            if (!opts || opts.method === 'GET' || !opts.method) {
+                // Для GET добавляем query параметр
+                url += (url.includes('?') ? '&' : '?') + 'telegram_id=' + encodeURIComponent(tgUserId);
+            } else {
+                // Для POST добавляем в body
+                const body = opts.body ? JSON.parse(opts.body) : {};
+                body.telegram_id = tgUserId;
+                newOpts.body = JSON.stringify(body);
+            }
+
+            const res = await fetch(url, { 
                 headers: { 'Content-Type': 'application/json' }, 
                 ...newOpts 
             });
