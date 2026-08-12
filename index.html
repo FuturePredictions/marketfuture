@@ -664,11 +664,27 @@
         let profileData = null;
         let currentProfileTab = 'mine';
 
+        let tgUserId = '0';
+        let tgUserName = 'User';
+        let tgUserHandle = '@user';
+
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             Telegram.WebApp.setHeaderColor('#0f0c29');
             Telegram.WebApp.setBackgroundColor('#0f0c29');
+
+            const user = Telegram.WebApp.initDataUnsafe.user;
+            if (user) {
+                tgUserId = String(user.id);
+                tgUserName = user.first_name || 'User';
+                tgUserHandle = user.username ? '@' + user.username : '@user';
+            }
+        }
+
+        // Если не в Telegram (тест в браузере), показываем предупреждение
+        if (tgUserId === '0') {
+            console.log('Test mode: no Telegram user detected');
         }
 
         function navigate(page) {
@@ -691,7 +707,13 @@
         }
 
         async function api(path, opts) {
-            const res = await fetch(API_URL + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
+            const body = opts && opts.body ? JSON.parse(opts.body) : {};
+            body.telegram_id = tgUserId;
+            const newOpts = { ...opts, body: JSON.stringify(body) };
+            const res = await fetch(API_URL + path, { 
+                headers: { 'Content-Type': 'application/json' }, 
+                ...newOpts 
+            });
             if (!res.ok) throw new Error(await res.text());
             return res.json();
         }
@@ -824,7 +846,11 @@
                     profileData.user.predictions_count++;
                     document.getElementById('statPredictions').textContent = profileData.user.predictions_count;
                 }
-                navigate('feed');
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('.nav-btn:nth-child(1)').classList.add('active');
+                document.querySelectorAll('.page').forEach(p => p.classList.add('hidden'));
+                document.getElementById('page-feed').classList.remove('hidden');
+                loadFeed();
             } catch (e) {
                 showToast('Ошибка публикации');
             }
