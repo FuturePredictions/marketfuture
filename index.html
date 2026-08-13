@@ -341,6 +341,27 @@ function openAvatarPicker(){const g=document.getElementById('avatarGrid');g.inne
 function closeAvatarModal(){document.getElementById('avatarModal').classList.remove('open')}
 async function saveAvatar(a){try{await api('/api/avatar',{method:'POST',body:JSON.stringify({avatar:a})});if(profileData)profileData.user.avatar=a;document.getElementById('profileAvatar').innerHTML='<span style=\"font-size:40px\">'+a+'</span>';playSuccess();showToast(t('changeAvatar')+' ✓')}catch(e){playError();showToast(t('error'))}closeAvatarModal()}
 document.getElementById('avatarModal').addEventListener('click',function(e){if(e.target===this)closeAvatarModal()});
+  let searchTimeout=null;
+function onSearchInput(){
+    clearTimeout(searchTimeout);
+    searchTimeout=setTimeout(doSearch,400);
+}
+async function doSearch(){
+    var q=document.getElementById('searchInput').value.trim();
+    if(!q){
+        predictions=await api('/api/predictions');
+        renderFeed();
+        return;
+    }
+    var l=document.getElementById('feedList');
+    l.innerHTML='<div class="empty">Поиск...</div>';
+    try{
+        predictions=await api('/api/search?q='+encodeURIComponent(q));
+        renderFeed();
+    }catch(e){
+        l.innerHTML='<div class="empty">Ничего не найдено</div>';
+    }
+}
 applyLanguage();loadFeed();
 </script>
 </body>
