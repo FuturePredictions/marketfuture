@@ -348,7 +348,6 @@ function navigate(page){document.querySelectorAll('.page').forEach(p=>p.classLis
 function showToast(text){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast';t.textContent=text;c.appendChild(t);setTimeout(()=>t.remove(),3000)}
 async function api(path,opts){
     let url=API_URL+path;
-    // tgInitData уже объявлен выше
     let no={
         headers:{
             'Content-Type':'application/json',
@@ -356,10 +355,9 @@ async function api(path,opts){
         },
         ...opts
     };
-   if(!opts||opts.method==='GET'||!opts.method){
-    url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)++'&handle='+encodeURIComponent(tgUserHandle)+'&init_data='+encodeURIComponent(tgInitData)+'&init_data='+encodeURIComponent(tgInitData)
-} 
-  else{
+    if(!opts||opts.method==='GET'||!opts.method){
+        url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)
+    }else{
         const b=opts.body?JSON.parse(opts.body):{};
         b.telegram_id=tgUserId;
         b.init_data = tgInitData;
