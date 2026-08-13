@@ -337,8 +337,9 @@ en:{feed:'Feed',create:'Create',profile:'Profile',faq:'FAQ',myPredictions:'My Pr
 function t(k){return translations[currentLang][k]||translations['ru'][k]||k}
 function applyLanguage(){document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.getAttribute('data-i18n');if(translations[currentLang][k])el.textContent=translations[currentLang][k]});document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{const k=el.getAttribute('data-i18n-placeholder');if(translations[currentLang][k])el.placeholder=translations[currentLang][k]});document.getElementById('langBtn').textContent=currentLang==='ru'?'EN':'RU'}
 function toggleLanguage(){currentLang=currentLang==='ru'?'en':'ru';localStorage.setItem('mf_lang',currentLang);applyLanguage();const p=document.querySelector('.page:not(.hidden)');if(p.id==='page-feed')renderFeed();if(p.id==='page-profile')renderProfileContent()}
-if(!window.Telegram || !Telegram.WebApp){
-    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;font-family:sans-serif;text-align:center;padding:20px;"><div><h2>📱 Откройте через Telegram</h2><p style="color:#888;margin-top:8px;">Это приложение работает только внутри Telegram.</p></div></div>';
+const tgInitData = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp.initData : '';
+if(!tgInitData){
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;font-family:sans-serif;text-align:center;padding:20px;background:#0f0c29;"><div><h2>📱 Откройте через Telegram</h2><p style="color:#888;margin-top:8px;">Это приложение работает только внутри Telegram.</p></div></div>';
     throw new Error('Not in Telegram');
 }
 if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#0f0c29');Telegram.WebApp.setBackgroundColor('#0f0c29');const u=Telegram.WebApp.initDataUnsafe.user;if(u){tgUserId=String(u.id);tgUserName=u.first_name||'User';tgUserHandle=u.username?'@'+u.username:'@user'}}
@@ -347,20 +348,21 @@ function navigate(page){document.querySelectorAll('.page').forEach(p=>p.classLis
 function showToast(text){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast';t.textContent=text;c.appendChild(t);setTimeout(()=>t.remove(),3000)}
 async function api(path,opts){
     let url=API_URL+path;
-    let initData = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp.initData : '';
+    // tgInitData уже объявлен выше
     let no={
         headers:{
             'Content-Type':'application/json',
-            'X-Init-Data': initData
+            'X-Init-Data': tgInitData
         },
         ...opts
     };
-    if(!opts||opts.method==='GET'||!opts.method){
-        url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)
-    }else{
+   if(!opts||opts.method==='GET'||!opts.method){
+    url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)++'&handle='+encodeURIComponent(tgUserHandle)+'&init_data='+encodeURIComponent(tgInitData)+'&init_data='+encodeURIComponent(tgInitData)
+} 
+  else{
         const b=opts.body?JSON.parse(opts.body):{};
         b.telegram_id=tgUserId;
-        b.init_data = initData;
+        b.init_data = tgInitData;
         no.body=JSON.stringify(b)
     }
     const r=await fetch(url,no);
