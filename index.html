@@ -356,7 +356,7 @@ async function api(path,opts){
         ...opts
     };
     if(!opts||opts.method==='GET'||!opts.method){
-        url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)
+        url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)+'&init_data='+encodeURIComponent(tgInitData)
         no.body=JSON.stringify(b)
     }
     const r=await fetch(url,no);
