@@ -276,25 +276,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Ar
 </div>
 </div>
 
-<div class="modal-overlay" id="nickModal">
+<!-- Правильно: promoModal отдельно -->
 <div class="modal-overlay" id="promoModal">
-<div class="modal">
-<div class="modal-title">Введи промокод:</div>
-<input type="text" class="modal-input" id="promoInput" maxlength="30">
-<div class="modal-buttons">
-<button class="modal-btn cancel" onclick="closePromoModal()">Отмена</button>
-<button class="modal-btn confirm" onclick="redeemPromo()">Активировать</button>
+  <div class="modal">
+    <div class="modal-title">Введи промокод:</div>
+    <input type="text" class="modal-input" id="promoInput" maxlength="30">
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" onclick="closePromoModal()">Отмена</button>
+      <button class="modal-btn confirm" onclick="redeemPromo()">Активировать</button>
+    </div>
+  </div>
 </div>
-</div>
-</div>
-<div class="modal">
-<div class="modal-title" data-i18n="enterNick">Введи новый ник:</div>
-<input type="text" class="modal-input" id="newNickInput" maxlength="20">
-<div class="modal-buttons">
-<button class="modal-btn cancel" onclick="closeNickModal()" data-i18n="cancel">Отмена</button>
-<button class="modal-btn confirm" onclick="saveNick()" data-i18n="confirm">Подтвердить</button>
-</div>
-</div>
+
+<!-- Правильно: nickModal отдельно -->
+<div class="modal-overlay" id="nickModal">
+  <div class="modal">
+    <div class="modal-title" data-i18n="enterNick">Введи новый ник:</div>
+    <input type="text" class="modal-input" id="newNickInput" maxlength="20">
+    <div class="modal-buttons">
+      <button class="modal-btn cancel" onclick="closeNickModal()" data-i18n="cancel">Отмена</button>
+      <button class="modal-btn confirm" onclick="saveNick()" data-i18n="confirm">Подтвердить</button>
+    </div>
+  </div>
 </div>
 
 <div class="pred-modal-overlay" id="adminModal">
