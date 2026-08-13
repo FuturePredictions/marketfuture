@@ -357,10 +357,6 @@ async function api(path,opts){
     };
     if(!opts||opts.method==='GET'||!opts.method){
         url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)
-    }else{
-        const b=opts.body?JSON.parse(opts.body):{};
-        b.telegram_id=tgUserId;
-        b.init_data = tgInitData;
         no.body=JSON.stringify(b)
     }
     const r=await fetch(url,no);
