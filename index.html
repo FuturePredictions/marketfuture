@@ -348,20 +348,25 @@ function navigate(page){document.querySelectorAll('.page').forEach(p=>p.classLis
 function showToast(text){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className='toast';t.textContent=text;c.appendChild(t);setTimeout(()=>t.remove(),3000)}
 async function api(path,opts){
     let url=API_URL+path;
-    let no={
-        headers:{
-            'Content-Type':'application/json',
-            'X-Init-Data': tgInitData
-        },
-        ...opts
-    };
-    if(!opts||opts.method==='GET'||!opts.method){
-        url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)+'&init_data='+encodeURIComponent(tgInitData)
+    let isGet = !opts||opts.method==='GET'||!opts.method;
+    let initData = (window.Telegram && Telegram.WebApp) ? Telegram.WebApp.initData : '';
+    let headers = {'Content-Type':'application/json'};
+    if(!isGet && initData){
+        headers['X-Init-Data'] = initData;
+    }
+    let no={headers:headers,...opts};
+    if(isGet){
+        url+=(url.includes('?')?'&':'?')+'telegram_id='+encodeURIComponent(tgUserId)+'&name='+encodeURIComponent(tgUserName)+'&handle='+encodeURIComponent(tgUserHandle)
+    }else{
+        const b=opts.body?JSON.parse(opts.body):{};
+        b.telegram_id=tgUserId;
+        b.init_data = initData;
         no.body=JSON.stringify(b)
     }
     const r=await fetch(url,no);
     if(!r.ok)throw new Error(await r.text());
     return r.json()
+}
 }async function loadFeed(){document.getElementById('searchInput').value='';const l=document.getElementById('feedList');l.innerHTML='<div class=\"empty\">'+t('loading')+'</div>';try{predictions=await api('/api/predictions');renderFeed()}catch(e){l.innerHTML='<div class=\"empty\">'+t('error')+'</div>'}}
 function renderFeed(){const l=document.getElementById('feedList');if(predictions.length===0){l.innerHTML='<div class=\"empty\">'+t('emptyFeed')+'</div>';return}l.innerHTML='';predictions.forEach(p=>{const b=p.is_bought||p.is_mine;const bt=b?t('open'):t('buyAccess');const bc=b?'btn-open':'btn-buy';const st=p.status==='resolved'?'<span class=\"status-badge status-resolved\">'+t('statusResolved')+'</span>':'<span class=\"status-badge status-pending\">'+t('statusPending')+'</span>';const ava=p.author_avatar?'<span style=\"margin-right:4px\">'+p.author_avatar+'</span>':'';const c=document.createElement('div');c.className='card';c.innerHTML='<div class=\"card-title\">'+escapeHtml(p.title)+' '+st+'</div><div class=\"card-locked\"><span style=\"font-size:16px\">🔒</span> '+t('lockedDesc')+'</div><div class=\"card-meta\"><div class=\"meta-left\"><span class=\"badge\">'+escapeHtml(p.category)+'</span><span class=\"accuracy\">'+ava+(p.author_accuracy||0)+'% '+t('accuracy')+'</span><span class=\"subscribers\">'+(p.subscribers||0)+' '+t('subscribersLabel')+'</span></div></div><div class=\"card-bottom\"><div class=\"price\"><span>💎</span> '+p.price+'</div><button class=\"btn '+bc+'\" onclick=\"handleAction('+p.id+')\">'+bt+'</button></div>';l.appendChild(c)})}
 async function handleAction(id){const p=predictions.find(x=>x.id===id);if(!p)return;if(p.is_bought||p.is_mine){openPredModal(p)}else{if(profileData&&profileData.user&&profileData.user.balance<p.price){showToast(t('insufficient'));return}try{const r=await api('/api/buy',{method:'POST',body:JSON.stringify({prediction_id:id})});if(profileData&&profileData.user)profileData.user.balance=r.new_balance;updateBalance();p.is_bought=1;renderFeed();playBuySound();showToast(t('boughtCrystals')+' '+p.price+' 💎');openPredModal(p)}catch(e){playError();showToast(t('buyError'))}}}
