@@ -119,6 +119,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Ar
 .avatar-grid-btn:hover{background:rgba(79,172,254,0.2);border-color:#4facfe;transform:scale(1.1)}
 .search-box{width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:12px 14px 12px 40px;color:#e0e0e0;font-size:14px;font-family:inherit;outline:none;margin-bottom:14px;transition:border-color .2s;background-image:url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:14px center}
 .search-box:focus{border-color:#4facfe}
+.admin-tab{transition:all .2s}
+.admin-section{margin-bottom:20px}
+.admin-section-title{font-size:13px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.admin-row{display:flex;gap:8px;margin-bottom:10px}
+.admin-row .form-input{flex:1;margin-bottom:0}
+.btn-give{background:linear-gradient(135deg,#8b5cf6,#7c3aed);padding:10px 18px;border-radius:12px;font-size:13px}
+.btn-create-promo{background:linear-gradient(135deg,#10b981,#059669);padding:10px 18px;border-radius:12px;font-size:13px;width:100%;margin-top:8px}
+.promo-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:14px;padding:12px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.promo-code{font-size:15px;font-weight:700;color:#4facfe}
+.promo-meta{font-size:11px;color:#666;margin-top:2px}
 </style>
 </head>
 <body>
@@ -184,6 +194,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Ar
 <div class="stat"><div class="stat-value green" id="statPredictions">—</div><div class="stat-label" data-i18n="predictionsCount">Прогнозов</div></div>
 </div>
 <button class="btn btn-change-nick" onclick="openNickModal()" data-i18n="changeNick">Изменить ник</button>
+<button class="btn btn-promo" onclick="openPromoModal()" style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);padding:10px 24px;border-radius:14px;font-size:14px;margin-bottom:20px">🎁 Промокод</button>
 </div>
 <button id="adminBtn" class="btn admin-btn hidden-admin" onclick="openAdminPanel()" data-i18n="adminPanel">Админ панель</button>
 <div class="tabs">
@@ -266,6 +277,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Ar
 </div>
 
 <div class="modal-overlay" id="nickModal">
+<div class="modal-overlay" id="promoModal">
+<div class="modal">
+<div class="modal-title">Введи промокод:</div>
+<input type="text" class="modal-input" id="promoInput" maxlength="30">
+<div class="modal-buttons">
+<button class="modal-btn cancel" onclick="closePromoModal()">Отмена</button>
+<button class="modal-btn confirm" onclick="redeemPromo()">Активировать</button>
+</div>
+</div>
+</div>
 <div class="modal">
 <div class="modal-title" data-i18n="enterNick">Введи новый ник:</div>
 <input type="text" class="modal-input" id="newNickInput" maxlength="20">
@@ -279,10 +300,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Ar
 <div class="pred-modal-overlay" id="adminModal">
 <div class="pred-modal">
 <div class="pred-modal-header">
-<div class="pred-modal-title" data-i18n="adminPanel">Админ панель</div>
+<div class="pred-modal-title">Админ панель</div>
 <button class="pred-modal-close" onclick="closeAdminModal()">&times;</button>
 </div>
-<div id="adminContent"><div class="empty" data-i18n="loading">Загрузка...</div></div>
+<div style="display:flex;gap:6px;margin-bottom:16px;border-bottom:1px solid rgba(255,255,255,0.08);padding-bottom:12px">
+<button class="admin-tab active" onclick="switchAdminTab('moderation',this)" style="flex:1;background:rgba(79,172,254,0.12);color:#4facfe;border:1px solid rgba(79,172,254,0.2);padding:10px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Модерация</button>
+<button class="admin-tab" onclick="switchAdminTab('promos',this)" style="flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:#666;padding:10px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer">Промокоды</button>
+</div>
+<div id="adminContent"><div class="empty">Загрузка...</div></div>
 </div>
 </div>
 
@@ -362,6 +387,25 @@ async function doSearch(){
         l.innerHTML='<div class="empty">Ничего не найдено</div>';
     }
 }
+let adminCurrentTab='moderation';
+function openPromoModal(){document.getElementById('promoModal').classList.add('open');document.getElementById('promoInput').focus()}
+function closePromoModal(){document.getElementById('promoModal').classList.remove('open')}
+document.getElementById('promoModal').addEventListener('click',function(e){if(e.target===this)closePromoModal()});
+async function redeemPromo(){const code=document.getElementById('promoInput').value.trim();if(!code){closePromoModal();return}try{const r=await api('/api/redeem-promo',{method:'POST',body:JSON.stringify({code})});if(profileData&&profileData.user){profileData.user.balance=r.new_balance;updateBalance();document.getElementById('statStars').textContent=r.new_balance}playSuccess();showToast('+'+r.crystals+' 💎');closePromoModal()}catch(e){playError();showToast('Неверный или использованный промокод')}}
+
+async function openAdminPanel(){adminCurrentTab='moderation';document.getElementById('adminModal').classList.add('open');document.body.style.overflow='hidden';loadAdminModeration()}
+function switchAdminTab(tab,btn){adminCurrentTab=tab;document.querySelectorAll('.admin-tab').forEach(b=>{b.classList.remove('active');b.style.background='rgba(255,255,255,0.05)';b.style.color='#666';b.style.borderColor='rgba(255,255,255,0.08)'});btn.classList.add('active');btn.style.background='rgba(79,172,254,0.12)';btn.style.color='#4facfe';btn.style.borderColor='rgba(79,172,254,0.2)';if(tab==='moderation')loadAdminModeration();else loadAdminPromos()}
+
+async function loadAdminModeration(){const c=document.getElementById('adminContent');c.innerHTML='<div class="empty">Загрузка...</div>';try{const d=await api('/api/admin');renderAdminModeration(d)}catch(e){c.innerHTML='<div class="empty">Ошибка</div>'}}
+function renderAdminModeration(d){const c=document.getElementById('adminContent');if(!d.predictions||d.predictions.length===0){c.innerHTML='<div class="empty">Нет прогнозов</div>';return}c.innerHTML='';const tools=document.createElement('div');tools.className='admin-section';tools.innerHTML='<div class="admin-section-title">Выдать кристаллы / Бан</div><div class="admin-row"><input type="text" id="adminIdentifier" class="form-input" placeholder="ID / @username / Telegram ID" style="flex:2;margin-bottom:0"><input type="number" id="adminAmount" class="form-input" placeholder="Сумма" style="flex:1;margin-bottom:0"><button class="btn btn-give" onclick="adminGiveCrystals()">💎</button></div><div class="admin-row"><input type="text" id="adminBanId" class="form-input" placeholder="ID / @username / Telegram ID" style="flex:1;margin-bottom:0"><button class="btn btn-ban" onclick="adminBanBy(1)">Бан</button><button class="btn btn-unban" onclick="adminBanBy(0)">Разбан</button></div>';c.appendChild(tools);const list=document.createElement('div');list.className='admin-panel';list.innerHTML='<div class="admin-title">Модерация ('+d.predictions.length+')</div>';d.predictions.forEach(p=>{const item=document.createElement('div');item.className='admin-item';const banBtn=p.author_banned?'<button class="btn btn-unban" onclick="toggleBan('+p.author_id+',0)">Разбан</button>':'<button class="btn btn-ban" onclick="toggleBan('+p.author_id+',1)">Бан</button>';item.innerHTML='<div style="flex:1"><div class="admin-item-title">'+escapeHtml(p.title)+'</div><div class="admin-item-meta">'+escapeHtml(p.author_name)+(p.author_banned?' <span style="color:#ef4444">[Забанен]</span>':'')+' | '+p.category+' | '+p.price+' 💎 | Подписчиков: '+(p.subscribers||0)+'</div></div>'+banBtn+'<button class="btn btn-delete" onclick="deletePrediction('+p.id+')">Удалить</button>';list.appendChild(item)});c.appendChild(list)}
+
+async function loadAdminPromos(){const c=document.getElementById('adminContent');c.innerHTML='<div class="empty">Загрузка...</div>';try{const d=await api('/api/admin/promos');renderAdminPromos(d)}catch(e){c.innerHTML='<div class="empty">Ошибка</div>'}}
+function renderAdminPromos(d){const c=document.getElementById('adminContent');c.innerHTML='';const create=document.createElement('div');create.className='admin-section';create.innerHTML='<div class="admin-section-title">Создать промокод</div><div class="admin-row"><input type="text" id="promoCode" class="form-input" placeholder="Код" style="flex:1;margin-bottom:0"><input type="number" id="promoCrystals" class="form-input" placeholder="Кристаллов" style="flex:1;margin-bottom:0"><input type="number" id="promoUses" class="form-input" placeholder="Активаций" style="flex:1;margin-bottom:0"></div><button class="btn btn-create-promo" onclick="adminCreatePromo()">Создать</button>';c.appendChild(create);if(!d.promos||d.promos.length===0){c.innerHTML+='<div class="empty">Нет промокодов</div>';return}d.promos.forEach(p=>{const item=document.createElement('div');item.className='promo-item';item.innerHTML='<div><div class="promo-code">'+escapeHtml(p.code)+'</div><div class="promo-meta">💎 '+p.crystals_amount+' | Использовано: '+(p.used_count||0)+' из '+p.uses_left+'</div></div><button class="btn btn-delete" onclick="adminDeletePromo('+p.id+')">Удалить</button>';c.appendChild(item)})}
+
+async function adminGiveCrystals(){const id=document.getElementById('adminIdentifier').value.trim();const amt=parseInt(document.getElementById('adminAmount').value);if(!id||!amt){showToast('Заполни поля');return}try{await api('/api/admin/give-crystals',{method:'POST',body:JSON.stringify({identifier:id,amount:amt})});playSuccess();showToast('Выдано '+amt+' 💎');document.getElementById('adminIdentifier').value='';document.getElementById('adminAmount').value=''}catch(e){playError();showToast('Ошибка')}}
+async function adminBanBy(ban){const id=document.getElementById('adminBanId').value.trim();if(!id){showToast('Введи ID');return}try{await api('/api/admin/ban-by',{method:'POST',body:JSON.stringify({identifier:id,ban})});playSuccess();showToast(ban?'Забанено':'Разбанено');document.getElementById('adminBanId').value='';loadAdminModeration()}catch(e){playError();showToast('Ошибка')}}
+async function adminCreatePromo(){const code=document.getElementById('promoCode').value.trim();const cry=parseInt(document.getElementById('promoCrystals').value);const use=parseInt(document.getElementById('promoUses').value);if(!code||!cry||!use){showToast('Заполни все поля');return}try{await api('/api/admin/promos/create',{method:'POST',body:JSON.stringify({code,crystals_amount:cry,uses_left:use})});playSuccess();showToast('Промокод создан');document.getElementById('promoCode').value='';document.getElementById('promoCrystals').value='';document.getElementById('promoUses').value='';loadAdminPromos()}catch(e){playError();showToast('Ошибка или код уже есть')}}
+async function adminDeletePromo(id){if(!confirm('Удалить промокод?'))return;try{await api('/api/admin/promos/delete',{method:'POST',body:JSON.stringify({promo_id:id})});playSuccess();showToast('Удалено');loadAdminPromos()}catch(e){playError();showToast('Ошибка')}}
 applyLanguage();loadFeed();
 </script>
 </body>
